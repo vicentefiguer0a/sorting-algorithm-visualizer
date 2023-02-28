@@ -14,13 +14,16 @@ public class SortingPanel extends JPanel {
     private Random random;
     private int[] arr;
     private BubbleSorting bubbleSort;
+    private InsertionSort insertionSort;
     // TODO: Add other sorting algorithms once learned.
 
     private JButton start;
     private JButton reset;
     private JButton bubble;
+    private JButton insertion;
 
     private boolean isBubbleSorting = false;
+    private boolean isInsertionSorting = false;
     private boolean isRunning;
 
     // Storing button actions.
@@ -29,9 +32,10 @@ public class SortingPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             try {
                 start.setBackground(Color.LIGHT_GRAY);
-                if (isRunning == false)
+                if (!isRunning) {
                     isRunning = true;
-                executeAnimation();
+                    executeAnimation();
+                }
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -42,11 +46,12 @@ public class SortingPanel extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                if (isRunning == false) {
+                if (!isRunning) {
                     isBubbleSorting = true;
+                    isInsertionSorting = false;
                     // TODO: Once other sorting algorithms are added later on, set their boolean value to false.
                     setButtonBackground();
-                    bubble.setBackground(Color.lightGray);
+                    bubble.setBackground(Color.LIGHT_GRAY);
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -66,6 +71,11 @@ public class SortingPanel extends JPanel {
             bubbleSort.setCompareIndex(Integer.MAX_VALUE);
             bubbleSort.setArrIndex(0);
             bubbleSort.setArr(arr);
+            // Resetting insertionSort object;
+            insertionSort.setArrIndex(Integer.MAX_VALUE);
+            insertionSort.setCompareIndex(Integer.MAX_VALUE);
+            insertionSort.setSorting(false);
+            insertionSort.setArr(arr);
             // TODO: Reset other sorting algorithm objects once added.
 
             isRunning = false;
@@ -80,6 +90,22 @@ public class SortingPanel extends JPanel {
         }
     };
 
+    private ActionListener insertionAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (!isRunning) {
+                    isInsertionSorting = true;
+                    isBubbleSorting = false;
+                    setButtonBackground();
+                    insertion.setBackground(Color.LIGHT_GRAY);
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    };
+
     // Constructor
     public SortingPanel() {
         random = new Random();
@@ -87,10 +113,12 @@ public class SortingPanel extends JPanel {
         this.setArray();
 
         bubbleSort = new BubbleSorting(arr);
+        insertionSort = new InsertionSort(arr);
 
         start = new JButton("Start");
         reset = new JButton("Reset");
         bubble = new JButton("Bubble");
+        insertion = new JButton("Insertion");
 
         // Configuring "Start" button.
         start.setModel(new ButtonModel());
@@ -110,10 +138,16 @@ public class SortingPanel extends JPanel {
         bubble.setFocusPainted(false);
         bubble.setBorderPainted(false);
         bubble.addActionListener(bubbleAction);
-
+        // Configuring "Insertion" button.
+        insertion.setModel(new ButtonModel());
+        insertion.setBackground(Color.WHITE);
+        insertion.setFocusPainted(false);
+        insertion.setBorderPainted(false);
+        insertion.addActionListener(insertionAction);
         this.add(start);
         this.add(reset);
         this.add(bubble);
+        this.add(insertion);
     }
 
     public void setButtonBackground() {
@@ -150,13 +184,37 @@ public class SortingPanel extends JPanel {
                     isRunning = false;
                     start.setBackground(Color.WHITE);
                     ((Timer)e.getSource()).stop();
-                } else {
-                    if (isRunning)
+                }
+                else {
+                    if (isRunning) {
                         arr = bubbleSort.sortOneIndex();
+                    }
                 }
                 repaint();
             });
+
             bubbleSortingTimer.start();
+        }
+
+        if (isInsertionSorting) {
+            insertionSort.setArrIndex(1);
+
+            Timer insertionSortTimer = new Timer(10, e -> {
+                if (isSorted() || !isRunning) {
+                    insertionSort.setArrIndex(Integer.MAX_VALUE);
+                    insertionSort.setCompareIndex(Integer.MAX_VALUE);
+                    insertionSort.setSorting(false);
+                    start.setBackground(Color.WHITE);
+                    ((Timer)e.getSource()).stop();
+                    isRunning = false;
+                } else {
+                    if (isRunning) {
+                        arr = insertionSort.sortOneIndex();
+                    }
+                }
+                repaint();
+            });
+            insertionSortTimer.start();
         }
 
         //TODO: add other sorting algorithm animations once added.
@@ -174,6 +232,15 @@ public class SortingPanel extends JPanel {
             if (isBubbleSorting) {
                 if (i == bubbleSort.getCompareIndex() || i == (bubbleSort.getCompareIndex() + 1)) {
                     graphics.setColor(Color.RED);
+                }
+            }
+
+            if (isInsertionSorting) {
+                if (i == insertionSort.getCompareIndex() || i == (insertionSort.getCompareIndex() + 1)) {
+                    graphics.setColor(Color.BLUE);
+                }
+                if (i == insertionSort.getArrIndex()) {
+                    graphics.setColor(Color.GREEN);
                 }
             }
 
