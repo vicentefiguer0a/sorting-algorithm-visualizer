@@ -1,13 +1,13 @@
 package org.example;
 
-public class BubbleSorting {
+public class BubbleSort {
 
     private int[] arr;
     private int arrIndex;
     private int compareIndex;
 
     // Constructor
-    public BubbleSorting(int[] arr) {
+    public BubbleSort(int[] arr) {
         this.arr = arr;
         arrIndex = 0;
         compareIndex = Integer.MAX_VALUE;

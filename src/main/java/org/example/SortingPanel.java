@@ -13,17 +13,20 @@ public class SortingPanel extends JPanel {
 
     private Random random;
     private int[] arr;
-    private BubbleSorting bubbleSort;
+    private BubbleSort bubbleSort;
     private InsertionSort insertionSort;
+    private SelectionSort selectionSort;
     // TODO: Add other sorting algorithms once learned.
 
     private JButton start;
     private JButton reset;
     private JButton bubble;
     private JButton insertion;
+    private JButton selection;
 
     private boolean isBubbleSorting = false;
     private boolean isInsertionSorting = false;
+    private boolean isSelectionSorting = false;
     private boolean isRunning;
 
     // Storing button actions.
@@ -42,22 +45,6 @@ public class SortingPanel extends JPanel {
         }
     };
 
-    private ActionListener bubbleAction = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                if (!isRunning) {
-                    isBubbleSorting = true;
-                    isInsertionSorting = false;
-                    // TODO: Once other sorting algorithms are added later on, set their boolean value to false.
-                    setButtonBackground();
-                    bubble.setBackground(Color.LIGHT_GRAY);
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
-    };
 
     private ActionListener resetAction = new ActionListener() {
         @Override
@@ -90,12 +77,48 @@ public class SortingPanel extends JPanel {
         }
     };
 
+    private ActionListener bubbleAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (!isRunning) {
+                    isBubbleSorting = true;
+                    isInsertionSorting = false;
+                    isSelectionSorting = false;
+                    // TODO: Once other sorting algorithms are added later on, set their boolean value to false.
+                    setButtonBackground();
+                    bubble.setBackground(Color.LIGHT_GRAY);
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    };
+
     private ActionListener insertionAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 if (!isRunning) {
                     isInsertionSorting = true;
+                    isBubbleSorting = false;
+                    isSelectionSorting = false;
+                    setButtonBackground();
+                    insertion.setBackground(Color.LIGHT_GRAY);
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    };
+
+    private ActionListener selectionAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (!isRunning) {
+                    isSelectionSorting = true;
+                    isInsertionSorting = false;
                     isBubbleSorting = false;
                     setButtonBackground();
                     insertion.setBackground(Color.LIGHT_GRAY);
@@ -112,13 +135,15 @@ public class SortingPanel extends JPanel {
         arr = new int[80];
         this.setArray();
 
-        bubbleSort = new BubbleSorting(arr);
+        bubbleSort = new BubbleSort(arr);
         insertionSort = new InsertionSort(arr);
+        selectionSort = new SelectionSort(arr);
 
         start = new JButton("Start");
         reset = new JButton("Reset");
         bubble = new JButton("Bubble");
         insertion = new JButton("Insertion");
+        selection = new JButton("Selection");
 
         // Configuring "Start" button.
         start.setModel(new ButtonModel());
@@ -144,10 +169,18 @@ public class SortingPanel extends JPanel {
         insertion.setFocusPainted(false);
         insertion.setBorderPainted(false);
         insertion.addActionListener(insertionAction);
+        // Configuring "Selection" button.
+        selection.setModel(new ButtonModel());
+        selection.setBackground(Color.WHITE);
+        selection.setFocusPainted(false);
+        selection.setBorderPainted(false);
+        selection.addActionListener(selectionAction);
+
         this.add(start);
         this.add(reset);
         this.add(bubble);
         this.add(insertion);
+        this.add(selection);
     }
 
     public void setButtonBackground() {
@@ -217,6 +250,30 @@ public class SortingPanel extends JPanel {
             insertionSortTimer.start();
         }
 
+        if (isSelectionSorting) {
+            selectionSort.setArrIndex(0);
+            selectionSort.setCompareIndex(1);
+            selectionSort.setMinIndex(0);
+
+            Timer selectionSortTimer = new Timer(10, e -> {
+                if (isSorted() || !isRunning) {
+                    selectionSort.setArrIndex(Integer.MAX_VALUE);
+                    selectionSort.setCompareIndex(Integer.MAX_VALUE);
+                    selectionSort.setMinIndex(Integer.MAX_VALUE);
+                    start.setBackground(Color.WHITE);
+                    ((Timer)e.getSource()).stop();
+                    isRunning = false;
+                } else {
+                    if (isRunning) {
+                        arr = selectionSort.sortOneIndex();
+                    }
+                }
+                repaint();
+            });
+
+            selectionSortTimer.start();
+        }
+
         //TODO: add other sorting algorithm animations once added.
     }
 
@@ -241,6 +298,15 @@ public class SortingPanel extends JPanel {
                 }
                 if (i == insertionSort.getArrIndex()) {
                     graphics.setColor(Color.GREEN);
+                }
+            }
+
+            if (isSelectionSorting) {
+                if (i == selectionSort.getCompareIndex() || i == selectionSort.getMinIndex()) {
+                    graphics.setColor(Color.ORANGE);
+                }
+                if (i == selectionSort.getArrIndex()) {
+                    graphics.setColor(Color.YELLOW);
                 }
             }
 
