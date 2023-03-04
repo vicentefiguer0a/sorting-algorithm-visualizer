@@ -17,7 +17,7 @@ public class SelectionSort {
         findingMin = false;
     }
 
-    public void swapNumbers(int[] arr, int i, int j) {
+    public void swapElements(int[] arr, int i, int j) {
         int temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
@@ -36,7 +36,7 @@ public class SelectionSort {
         compareIndex++;
 
         if (compareIndex >= 80) {
-            swapNumbers(arr, minIndex, arrIndex);
+            swapElements(arr, minIndex, arrIndex);
             arrIndex++;
             compareIndex = arrIndex + 1;
             findingMin = false;

@@ -16,17 +16,19 @@ public class SortingPanel extends JPanel {
     private BubbleSort bubbleSort;
     private InsertionSort insertionSort;
     private SelectionSort selectionSort;
-    // TODO: Add other sorting algorithms once learned.
+    private QuickSort quickSort;
 
     private JButton start;
     private JButton reset;
     private JButton bubble;
     private JButton insertion;
     private JButton selection;
+    private JButton quick;
 
     private boolean isBubbleSorting = false;
     private boolean isInsertionSorting = false;
     private boolean isSelectionSorting = false;
+    private boolean isQuickSorting = false;
     private boolean isRunning;
 
     // Storing button actions.
@@ -49,8 +51,8 @@ public class SortingPanel extends JPanel {
     private ActionListener resetAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            reset.setBackground(Color.LIGHT_GRAY);
-            start.setBackground(Color.WHITE);
+            reset.setBackground(Color.RED);
+            start.setBackground(Color.GREEN);
 
             setArray();
 
@@ -58,12 +60,23 @@ public class SortingPanel extends JPanel {
             bubbleSort.setCompareIndex(Integer.MAX_VALUE);
             bubbleSort.setArrIndex(0);
             bubbleSort.setArr(arr);
-            // Resetting insertionSort object;
+            // Resetting insertionSort object.
             insertionSort.setArrIndex(Integer.MAX_VALUE);
             insertionSort.setCompareIndex(Integer.MAX_VALUE);
             insertionSort.setSorting(false);
             insertionSort.setArr(arr);
-            // TODO: Reset other sorting algorithm objects once added.
+            // Resetting selectionSort object.
+            selectionSort.setCompareIndex(Integer.MAX_VALUE);
+            selectionSort.setArrIndex(Integer.MAX_VALUE);
+            selectionSort.setMinIndex(Integer.MAX_VALUE);
+            // Resetting quickSort object.
+            quickSort.setSp(-1);
+            quickSort.addNum(0);
+            quickSort.addNum(79);
+            quickSort.setArrIndex(Integer.MAX_VALUE);
+            quickSort.setCompareIndex(Integer.MAX_VALUE);
+            quickSort.setPartition(-1);
+            quickSort.setPartitioning(false);
 
             isRunning = false;
 
@@ -85,6 +98,7 @@ public class SortingPanel extends JPanel {
                     isBubbleSorting = true;
                     isInsertionSorting = false;
                     isSelectionSorting = false;
+                    isQuickSorting = false;
                     // TODO: Once other sorting algorithms are added later on, set their boolean value to false.
                     setButtonBackground();
                     bubble.setBackground(Color.LIGHT_GRAY);
@@ -103,6 +117,7 @@ public class SortingPanel extends JPanel {
                     isInsertionSorting = true;
                     isBubbleSorting = false;
                     isSelectionSorting = false;
+                    isQuickSorting = false;
                     setButtonBackground();
                     insertion.setBackground(Color.LIGHT_GRAY);
                 }
@@ -120,8 +135,27 @@ public class SortingPanel extends JPanel {
                     isSelectionSorting = true;
                     isInsertionSorting = false;
                     isBubbleSorting = false;
+                    isQuickSorting = false;
                     setButtonBackground();
-                    insertion.setBackground(Color.LIGHT_GRAY);
+                    selection.setBackground(Color.LIGHT_GRAY);
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+    };
+
+    private ActionListener quickAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (!isRunning) {
+                    isQuickSorting = true;
+                    isBubbleSorting = false;
+                    isInsertionSorting = false;
+                    isSelectionSorting = false;
+                    setButtonBackground();
+                    quick.setBackground(Color.LIGHT_GRAY);
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -138,49 +172,57 @@ public class SortingPanel extends JPanel {
         bubbleSort = new BubbleSort(arr);
         insertionSort = new InsertionSort(arr);
         selectionSort = new SelectionSort(arr);
+        quickSort = new QuickSort(arr);
 
         start = new JButton("Start");
         reset = new JButton("Reset");
-        bubble = new JButton("Bubble");
-        insertion = new JButton("Insertion");
-        selection = new JButton("Selection");
+        bubble = new JButton("Bubble Sort");
+        insertion = new JButton("Insertion Sort");
+        selection = new JButton("Selection Sort");
+        quick = new JButton("Quick Sort");
 
         // Configuring "Start" button.
         start.setModel(new ButtonModel());
-        start.setBackground(Color.WHITE);
+        start.setBackground(Color.GREEN);
         start.setFocusPainted(false);
         start.setBorderPainted(false);
         start.addActionListener(startAction);
         // Configuring "Reset" button.
         reset.setModel(new ButtonModel());
-        reset.setBackground(Color.WHITE);
+        reset.setBackground(Color.RED);
         reset.setFocusPainted(false);
         reset.setBorderPainted(false);
         reset.addActionListener(resetAction);
-        // Configuring "Bubble" button.
+        // Configuring "Bubble Sort" button.
         bubble.setModel(new ButtonModel());
         bubble.setBackground(Color.WHITE);
         bubble.setFocusPainted(false);
         bubble.setBorderPainted(false);
         bubble.addActionListener(bubbleAction);
-        // Configuring "Insertion" button.
+        // Configuring "Insertion Sort" button.
         insertion.setModel(new ButtonModel());
         insertion.setBackground(Color.WHITE);
         insertion.setFocusPainted(false);
         insertion.setBorderPainted(false);
         insertion.addActionListener(insertionAction);
-        // Configuring "Selection" button.
+        // Configuring "Selection Sort" button.
         selection.setModel(new ButtonModel());
         selection.setBackground(Color.WHITE);
         selection.setFocusPainted(false);
         selection.setBorderPainted(false);
         selection.addActionListener(selectionAction);
-
+        // Configuring "Quick Sort" button.
+        quick.setModel(new ButtonModel());
+        quick.setBackground(Color.WHITE);
+        quick.setFocusPainted(false);
+        quick.setBorderPainted(false);
+        quick.addActionListener(quickAction);
         this.add(start);
         this.add(reset);
         this.add(bubble);
         this.add(insertion);
         this.add(selection);
+        this.add(quick);
     }
 
     public void setButtonBackground() {
@@ -270,20 +312,39 @@ public class SortingPanel extends JPanel {
                 }
                 repaint();
             });
-
             selectionSortTimer.start();
         }
 
-        //TODO: add other sorting algorithm animations once added.
+        if (isQuickSorting) {
+            Timer quickSortTimer  = new Timer(10, e -> {
+                if (isSorted() || !isRunning) {
+                    quickSort.setSp(-1);
+                    quickSort.addNum(0);
+                    quickSort.addNum(79);
+                    quickSort.setArrIndex(Integer.MAX_VALUE);
+                    quickSort.setCompareIndex(Integer.MAX_VALUE);
+                    quickSort.setPartition(-1);
+                    quickSort.setPartitioning(false);
+                    isRunning = false;
+                    start.setBackground(Color.WHITE);
+                    ((Timer) e.getSource()).stop();
+                } else {
+                    if (isRunning)
+                        arr = quickSort.sortOnlyOneItem();
+                }
+                repaint();
+            });
+            quickSortTimer.start();
+        }
     }
 
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        this.setBackground(Color.BLACK);
+        this.setBackground(Color.GRAY);
 
         for (int i = 0; i < arr.length; i++) {
-            graphics.setColor(Color.WHITE);
+            graphics.setColor(Color.BLACK);
             graphics.drawRect(i * 15, 600 - arr[i], 14, arr[i]);
 
             if (isBubbleSorting) {
@@ -303,11 +364,25 @@ public class SortingPanel extends JPanel {
 
             if (isSelectionSorting) {
                 if (i == selectionSort.getCompareIndex() || i == selectionSort.getMinIndex()) {
-                    graphics.setColor(Color.ORANGE);
+                    graphics.setColor(Color.RED);
                 }
                 if (i == selectionSort.getArrIndex()) {
                     graphics.setColor(Color.YELLOW);
                 }
+            }
+
+            if (isQuickSorting) {
+
+                if (i == quickSort.getArrIndex()) {
+                    graphics.setColor(Color.RED);
+                }
+
+                if (i == quickSort.getCompareIndex()) {
+                    graphics.setColor(Color.YELLOW);
+                }
+
+                if (i == quickSort.getPartition())
+                    graphics.setColor(Color.GREEN);
             }
 
             graphics.fillRect(i * 15, 600 - arr[i], 14, arr[i]);
